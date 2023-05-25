@@ -16,9 +16,8 @@ on:
 #     types: started
   
 env:
-  REPO_URL: https://git.openwrt.org/openwrt/staging/wigyori.git
-  REPO_BRANCH: riscv-visionfive-202301
-  FEEDS_CONF: feeds.conf.default
+  REPO_URL: https://github.com/hauke/openwrt.git
+  REPO_BRANCH: visionfive-4
   CONFIG_FILE: .config
   SSH_ACTIONS:  false
   UPLOAD_BIN_DIR: false
@@ -57,7 +56,7 @@ jobs:
           echo "========================================"
         
     - name: 下载源码
-      run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt && [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default && cd openwrt && curl -o include/openssl-module.mk https://raw.githubusercontent.com/openwrt/openwrt/master/include/openssl-module.mk && ./scripts/feeds clean && ./scripts/feeds update -a && ./scripts/feeds install -a
+      run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt && [ -e $FEEDS_CONF ] && cd openwrt && ./scripts/feeds clean && ./scripts/feeds update -a && ./scripts/feeds install -a
    
     - name: 导入自定义
       run: |
@@ -90,7 +89,7 @@ jobs:
         du -h --max-depth=1 ./ --exclude=build_dir --exclude=bin
         du -h --max-depth=1 ./build_dir
         du -h --max-depth=1 ./bin
-        cp -f .config ./bin/targets/visionfive/generic/
+        cp -f .config ./bin/targets/starfive/jh7100/
         
     - name: 上传bin
       uses: actions/upload-artifact@master
@@ -103,9 +102,9 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cp openwrt/.config  openwrt/bin/targets/visionfive/generic/config.txt
-        tar -czf bin.tar.gz openwrt/bin && cp -vf bin.tar.gz openwrt/bin/targets/visionfive/generic
-        cd openwrt/bin/targets/visionfive/generic
+        cp openwrt/.config  openwrt/bin/targets/starfive/jh7100/config.txt
+        tar -czf bin.tar.gz openwrt/bin && cp -vf bin.tar.gz openwrt/bin/targets/starfive/jh7100
+        cd openwrt/bin/targets/starfive/jh7100
         rm -rf packages *rootfs* *vmlinuz *info *fest
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
